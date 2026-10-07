@@ -1,7 +1,7 @@
 import { Button, Stack, Typography } from '@mui/material'
 import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import Panel from '../components/Panel'
-import PostCard from '../components/PostCard'
+import PagedPosts from '../components/PagedPosts'
 import { formatDate } from '../lib/format'
 import { getPosts, searchPosts } from '../lib/posts'
 
@@ -34,7 +34,7 @@ export default function Home() {
           <Typography color="text.secondary">沒有符合的文章。</Typography>
         </Panel>
       ) : (
-        list.map((p) => <PostCard key={p.slug} post={p} />)
+        <PagedPosts posts={list} />
       )}
     </Stack>
   )

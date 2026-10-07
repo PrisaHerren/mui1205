@@ -3,7 +3,39 @@ import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import { Box, Link, Typography } from '@mui/material'
 import 'highlight.js/styles/github.css'
+import Gallery from './Gallery'
 import { resolveImage } from '../lib/posts'
+
+// ```gallery 區塊：每行一張圖（路徑、https 網址、或 ![](網址) 都可以）
+const parseGalleryLines = (text: string): string[] =>
+  text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      const m = l.match(/!\[[^\]]*\]\(([^)]+)\)/)
+      return m ? m[1] : l.replace(/^[-*]\s+/, '')
+    })
+    .map((u) => resolveImage(u) ?? u)
+
+const galleryText = (node: unknown): string | null => {
+  const code = (
+    node as
+      | {
+          children?: Array<{
+            tagName?: string
+            properties?: { className?: unknown }
+            children?: Array<{ value?: string }>
+          }>
+        }
+      | undefined
+  )?.children?.[0]
+  const cls = code?.properties?.className
+  if (code?.tagName === 'code' && Array.isArray(cls) && cls.includes('language-gallery')) {
+    return (code.children ?? []).map((c) => c.value ?? '').join('')
+  }
+  return null
+}
 
 export default function MarkdownView({ source }: { source: string }) {
   return (
@@ -29,7 +61,7 @@ export default function MarkdownView({ source }: { source: string }) {
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
+        rehypePlugins={[[rehypeHighlight, { plainText: ['gallery'] }]]}
         components={{
           h1: ({ children }) => (
             <Typography variant="h4" component="h2" sx={{ mt: 4, mb: 2 }}>
@@ -57,8 +89,12 @@ export default function MarkdownView({ source }: { source: string }) {
             </Link>
           ),
           img: ({ src, alt }) => (
-            <img src={resolveImage(src)} alt={alt ?? ''} loading="lazy" />
+            <img src={resolveImage(src)} alt={alt ?? ''} loading="lazy" referrerPolicy="no-referrer" />
           ),
+          pre: ({ node, children }) => {
+            const g = galleryText(node)
+            return g === null ? <pre>{children}</pre> : <Gallery images={parseGalleryLines(g)} />
+          },
         }}
       >
         {source}

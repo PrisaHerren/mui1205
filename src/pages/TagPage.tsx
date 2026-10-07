@@ -1,7 +1,7 @@
 import { Button, Stack, Typography } from '@mui/material'
 import { Link as RouterLink, useParams } from 'react-router-dom'
 import Panel from '../components/Panel'
-import PostCard from '../components/PostCard'
+import PagedPosts from '../components/PagedPosts'
 import { getPostsByTag } from '../lib/posts'
 
 export default function TagPage() {
@@ -25,7 +25,7 @@ export default function TagPage() {
           <Typography color="text.secondary">這個標籤下還沒有文章。</Typography>
         </Panel>
       ) : (
-        posts.map((p) => <PostCard key={p.slug} post={p} />)
+        <PagedPosts posts={posts} />
       )}
     </Stack>
   )

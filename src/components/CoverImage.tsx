@@ -16,6 +16,7 @@ export default function CoverImage({ src, alt, caption, icon }: Props) {
         src={src}
         alt={alt}
         loading="lazy"
+        referrerPolicy="no-referrer"
         sx={{ display: 'block', width: '100%', aspectRatio: '1.9 / 1', objectFit: 'cover' }}
       />
       {(caption || icon) && (

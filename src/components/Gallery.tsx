@@ -30,7 +30,7 @@ export default function Gallery({ images }: { images: string[] }) {
       aria-label="相簿"
       tabIndex={0}
       onKeyDown={onKeyDown}
-      sx={{ mt: 4, outlineOffset: 4 }}
+      sx={{ my: 3, outlineOffset: 4 }}
     >
       <Box
         sx={{
@@ -45,6 +45,7 @@ export default function Gallery({ images }: { images: string[] }) {
           component="img"
           src={images[i]}
           alt={`照片 ${i + 1} / ${n}`}
+          referrerPolicy="no-referrer"
           sx={{ display: 'block', width: '100%', height: '100%', objectFit: 'contain' }}
         />
         {n > 1 && (
@@ -84,7 +85,7 @@ export default function Gallery({ images }: { images: string[] }) {
                 opacity: idx === i ? 1 : 0.7,
               }}
             >
-              <Box component="img" src={src} alt="" sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <Box component="img" src={src} alt="" referrerPolicy="no-referrer" sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </ButtonBase>
           ))}
         </Stack>
