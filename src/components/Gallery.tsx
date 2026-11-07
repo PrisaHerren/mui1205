@@ -70,7 +70,7 @@ export default function Gallery({ images }: { images: string[] }) {
         <Stack direction="row" spacing={1} sx={{ mt: 1, overflowX: 'auto', pb: 0.5 }}>
           {images.map((src, idx) => (
             <ButtonBase
-              key={src}
+              key={`${idx}-${src}`}
               onClick={() => setI(idx)}
               aria-label={`第 ${idx + 1} 張`}
               aria-current={idx === i}

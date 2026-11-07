@@ -52,6 +52,11 @@ trip/4.jpg
 npm install
 npm run dev
 npm run deploy   # build + wrangler deploy
+npm update -g wrangle
+
+git status
+git add .
+git commit -m "更新說明文字"
 ```
 
 ## 自訂

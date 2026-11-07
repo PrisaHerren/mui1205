@@ -78,26 +78,44 @@ const makeExcerpt = (md: string, max = 120): string => {
 }
 
 const posts: Post[] = Object.entries(postModules)
-  .map(([path, raw]) => {
+  .flatMap(([path, raw]) => {
     const slug = path.split('/').pop()!.replace(/\.md$/, '')
-    const { attributes, body } = fm<Attrs>(raw)
-    const summary = attributes.summary ?? ''
-    return {
-      slug,
-      title: attributes.title ?? slug,
-      date: normalizeDate(attributes.date),
-      updated: attributes.updated ? normalizeDate(attributes.updated) : undefined,
-      summary,
-      excerpt: summary || makeExcerpt(body),
-      tags: attributes.tags ?? [],
-      cover: resolveImage(attributes.cover),
-      coverCaption: attributes.coverCaption,
-      coverIcon: resolveImage(attributes.coverIcon),
-      gallery: (attributes.gallery ?? []).map((g) => resolveImage(g) ?? g),
-      content: body.replace(MORE, ''),
+    if (!raw.trim()) {
+      console.warn(`略過空白文章：${path}`)
+      return []
+    }
+    try {
+      const { attributes, body } = fm<Attrs>(raw)
+      const summary = attributes.summary ?? ''
+      return [{
+        slug,
+        title: attributes.title ?? slug,
+        date: normalizeDate(attributes.date),
+        updated: attributes.updated ? normalizeDate(attributes.updated) : undefined,
+        summary,
+        excerpt: summary || makeExcerpt(body),
+        tags: attributes.tags ?? [],
+        cover: resolveImage(attributes.cover),
+        coverCaption: attributes.coverCaption,
+        coverIcon: resolveImage(attributes.coverIcon),
+        gallery: (attributes.gallery ?? []).map((g) => resolveImage(g) ?? g),
+        content: body.replace(MORE, ''),
+      } as Post]
+    } catch (err) {
+      console.error(`文章解析失敗：${path}`, err)
+      return []
     }
   })
   .sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title))
+
+// 開發時提醒：標題重複通常是複製範本後忘了改 title
+if (import.meta.env.DEV) {
+  const byTitle = new Map<string, string[]>()
+  for (const p of posts) byTitle.set(p.title, [...(byTitle.get(p.title) ?? []), p.slug])
+  for (const [title, slugs] of byTitle) {
+    if (slugs.length > 1) console.warn(`標題重複「${title}」：${slugs.join('、')}`)
+  }
+}
 
 const toMeta = ({
   content: _content,
